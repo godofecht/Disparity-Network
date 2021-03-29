@@ -37,10 +37,11 @@ public:
 	{
 		thisNetwork = new Network(topology);
 	}
-	void BackPropagate(vector<double> targetVals)
+/*	void BackPropagate(vector<double> targetVals)
 	{
 		thisNetwork->backPropagate(targetVals);
 	}
+	*/
 	Network* getNetwork()
 	{
 		return thisNetwork;
