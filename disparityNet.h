@@ -138,6 +138,7 @@ public:
             error += getNetwork()->errors[a];
  //           del_weights_jk[a] = getNetwork()->errors[a] * getNetwork()->Output_Array[a];
  //           sum_del += del_weights_jk[a];
+ //cout<<getNetwork()->errors[a]<<endl;
 
         //    cout<<getNetwork()->dudxs[a]<<endl;
         }

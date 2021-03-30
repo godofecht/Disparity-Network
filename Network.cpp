@@ -38,14 +38,17 @@ double Network::getErrorDerivative(double dvdx,double dudx)
 {
 	double v1 = 1.0/V;
 	double u1 = 1.0/U;
-	double deriv = ((v1) * dvdx) - ((u1) * dudx);
+
+	long deriv = ((v1) * dvdx) - ((u1) * dudx);
+	
+//	cout<<deriv<<endl;
 	return deriv;
 }
 
 void Network::CalcF()
 {
 	F = log(V/U);
-//	cout<<F<<endl;
+	cout<<U<<endl;
 }
 
 void Network::backPropagate(double m_error)

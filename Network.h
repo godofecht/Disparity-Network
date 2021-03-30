@@ -64,10 +64,11 @@ class Network
 
 		void CalcV()
 		{
-			double sumDiffSquared = 0;
+			long sumDiffSquared = 0.0;
 			for(int k=0;k<A;k++)
 			{
-				double diff = y_bar[k] - Output_Array[k];
+			//	cout<<y_bar[k]<<endl;
+				long diff = y_bar[k] - Output_Array[k];
 				sumDiffSquared += pow(diff,2.0);
 			}
 			V = (sumDiffSquared)/2.0;
@@ -75,10 +76,10 @@ class Network
 
 		void CalcU()
 		{
-			double sumDiffSquared = 0.0;
+			long sumDiffSquared = 0.0;
 			for(int k=0;k<A;k++)
 			{
-				double diff = y_tilde[k] - Output_Array[k];
+				long diff = y_tilde[k] - Output_Array[k];
 				sumDiffSquared += pow(diff,2.0);
 			}	
 			U = (sumDiffSquared)/2.0;
@@ -86,6 +87,7 @@ class Network
 
 
 		void CalcF();
+
 
 
 		double getDUDX(int a);
@@ -201,15 +203,18 @@ class Network
 
 	void CalcAverages()
 	{
+		double sum_bar;
+		double sum_tilde;
 		for(int k=0;k<A;k++)
 		{
-			double sum_bar = 0.0;
-			double sum_tilde = 0.0;
+			sum_bar = 0.0;
+			sum_tilde = 0.0;
 			for(int a=0;a<A;a++)
 			{
 				sum_bar += (maskV[(getSub(a,k))]*Output_Array[a]);
 				sum_tilde += (maskU[(getSub(a,k))]*Output_Array[a]);	
 			}
+
 			y_bar[k] = sum_bar;
 			y_tilde[k] = sum_tilde;
 		}
