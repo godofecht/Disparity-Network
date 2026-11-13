@@ -5,7 +5,7 @@
 #include <istream>
 #include <iostream>
 #include <iterator>
-//#include <algorithm>
+#include <algorithm>
 using std::istringstream;
 
 class DisparityNet : public Model
@@ -90,6 +90,9 @@ public:
         while (getline(file, s))
         {
             vector<double> doubleArray;
+            // The rows are wrapped in double quotes; drop them so the first
+            // value is not read as 0.
+            s.erase(std::remove(s.begin(), s.end(), '"'), s.end());
             vector<std::string> vstrings = split(s, ' ');
 
             for (int i = 0; i < vstrings.size(); i++)
