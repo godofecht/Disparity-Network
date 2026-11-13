@@ -35,8 +35,16 @@ public:
         SetTopology(topology);
         InitializeTopology();
 
+        // Scale the random starting weights so the whole weight vector has
+        // length 1. Dividing by their sum instead (normalizeVector) can
+        // divide by a number close to 0, since the weights are between -1
+        // and 1, and that gives huge weights that saturate tanh.
         vector<double> weights = getNetwork()->GetWeights();
-        getNetwork()->normalizeVector(weights);
+        double sumSquares = 0.0;
+        for (double w : weights)
+            sumSquares += w * w;
+        for (double &w : weights)
+            w /= sqrt(sumSquares);
         getNetwork()->PutWeights(weights);
 
         for (int i = 0; i < getNetwork()->A; i++)
