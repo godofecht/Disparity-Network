@@ -117,7 +117,7 @@ public:
         return dataList;
     }
 
-    double learningRate = 0.001;
+    double learningRate = 0.01;
 
     // Runs the network on all A windows, then works out U, V and F.
     double CalcObjective()
@@ -154,13 +154,28 @@ public:
         }
     }
 
-    // One training round over all A windows. Returns F before the update.
+    // One training round over all A windows. Returns F after the round.
+    //
+    // F does not change when the output is scaled, so as training goes on
+    // the output can shrink, the gradient grows, and a fixed step starts
+    // to overshoot. The step size is adapted instead ("bold driver"): if a
+    // step lowers F it is undone and the learning rate is halved; if it
+    // raises F the step is kept and the learning rate grows by 10%.
     double Train(int current_epoch)
     {
         double F = CalcObjective();
         AccumulateGradient();
+        vector<double> oldWeights = getNetwork()->GetWeights();
         getNetwork()->applyWeightChanges(learningRate);
-        return F;
+        double newF = CalcObjective();
+        if (newF < F)
+        {
+            getNetwork()->PutWeights(oldWeights);
+            learningRate *= 0.5;
+            return F;
+        }
+        learningRate *= 1.1;
+        return newF;
     }
 
     void write_csv(std::string filename, std::vector<std::pair<std::string, std::vector<double>>> dataset)
