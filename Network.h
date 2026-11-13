@@ -64,11 +64,11 @@ class Network
 
 		void CalcV()
 		{
-			long sumDiffSquared = 0.0;
+			double sumDiffSquared = 0.0;
 			for(int k=0;k<A;k++)
 			{
 			//	cout<<y_bar[k]<<endl;
-				long diff = y_bar[k] - Output_Array[k];
+				double diff = y_bar[k] - Output_Array[k];
 				sumDiffSquared += pow(diff,2.0);
 			}
 			V = (sumDiffSquared)/2.0;
@@ -76,10 +76,10 @@ class Network
 
 		void CalcU()
 		{
-			long sumDiffSquared = 0.0;
+			double sumDiffSquared = 0.0;
 			for(int k=0;k<A;k++)
 			{
-				long diff = y_tilde[k] - Output_Array[k];
+				double diff = y_tilde[k] - Output_Array[k];
 				sumDiffSquared += pow(diff,2.0);
 			}	
 			U = (sumDiffSquared)/2.0;

@@ -40,7 +40,7 @@ double Network::getErrorDerivative(double dvdx,double dudx)
 	double v1 = 1.0/V;
 	double u1 = 1.0/U;
 
-	long deriv = ((v1) * dvdx) - ((u1) * dudx);
+	double deriv = ((v1) * dvdx) - ((u1) * dudx);
 	
 //	cout<<deriv<<endl;
 	return deriv;
@@ -106,7 +106,7 @@ vector<double>  Network::GetWeights() const
 
 double Network::getDVDX(int a) //done, maybe optimize later
 {
-	long sumDiff = 0.0;
+	double sumDiff = 0.0;
 	for(int k=0;k<A;k++)
 	{
 		double diff = y_bar[k] - Output_Array[k];
@@ -121,7 +121,7 @@ double Network::getDVDX(int a) //done, maybe optimize later
 
 double Network::getDUDX(int a) // done, maybe optimize later
 {
-	long sumDiff = 0.0;
+	double sumDiff = 0.0;
 	for(int k=0;k<A;k++)
 	{
 		double diff = y_tilde[k] - Output_Array[k];
