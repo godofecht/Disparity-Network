@@ -42,23 +42,23 @@ void Neuron::feedForwardHidden(Layer &prevLayer) //Hidden Layer Activations
 	m_outputVal =  Neuron::transferFunction(sum);
 }
 
-void Neuron::updateInputWeights(Layer &prevLayer) //Formulas adapted into code.
+// dF/dw for the weight from prevLayer[n] to this neuron is this neuron's
+// gradient times prevLayer[n]'s output. Add it to that connection's total.
+void Neuron::accumulateInputWeightChanges(Layer &prevLayer)
 {
 	for (unsigned n = 0; n < prevLayer.size(); n++) {
 		Neuron &neuron = prevLayer[n];
-		double oldDeltaWeight = neuron.m_outputWeights[m_myIndex].deltaweight;
+		neuron.m_outputWeights[m_myIndex].deltaweight += neuron.getOutputVal() * m_gradient;
+	}
+}
 
-
-		double newDeltaWeight =
-			// Individual input is magnified by the gradient and train rate:
-			0.001 //	eta
-			* m_outputVal
-			* m_gradient;
-
-	//	cout<<newDeltaWeight<<endl;
-
-		neuron.m_outputWeights[m_myIndex].deltaweight = newDeltaWeight;
-		neuron.m_outputWeights[m_myIndex].weight -= newDeltaWeight;
+// F is to be maximised, so each weight moves up its gradient.
+void Neuron::applyInputWeightChanges(Layer &prevLayer, double eta)
+{
+	for (unsigned n = 0; n < prevLayer.size(); n++) {
+		connection &c = prevLayer[n].m_outputWeights[m_myIndex];
+		c.weight += eta * c.deltaweight;
+		c.deltaweight = 0.0;
 	}
 }
 

@@ -10,6 +10,8 @@ class Network
 		Network(const vector <unsigned> &topology);
 	//	void backPropagate(const vector <double> &targetVals);
 		void backPropagate(double m_error);
+		void applyWeightChanges(double eta);
+		vector<double> GetWeightChanges() const;
 		void feedForward(vector <double> &inputVals);
 		void getResults(vector <double> &resultVals);
 		double getRecentAverageError(void) const { return m_recentAverageError; }
@@ -211,8 +213,8 @@ class Network
 			sum_tilde = 0.0;
 			for(int a=0;a<A;a++)
 			{
-				sum_bar += (maskV[(getSub(a,k))]*Output_Array[a]);
-				sum_tilde += (maskU[(getSub(a,k))]*Output_Array[a]);	
+				sum_bar += maskWeight(maskV, a, k) * Output_Array[a];
+				sum_tilde += maskWeight(maskU, a, k) * Output_Array[a];
 			}
 
 			y_bar[k] = sum_bar;
@@ -222,16 +224,20 @@ class Network
 
 
 
-	int getSub(int a, int k)
+	// Kernel weight between outputs a and k. The kernel is stored from
+	// offset -w to +w, so offset 0 is in the middle at index w. Offsets
+	// wrap around the A outputs, and offsets beyond w get weight 0.
+	double maskWeight(const vector<double> &mask, int a, int k)
 	{
-		int diff = a-k;
-		if(diff <0.0)
-			diff = 1000.0+diff;
-		if(diff > 1000.0)
-			diff = diff - 1000.0;
-		return diff;
+		int n = (int)A;
+		int d = ((a - k) % n + n) % n;
+		if (d > n / 2)
+			d -= n;
+		int w = ((int)mask.size() - 1) / 2;
+		if (d < -w || d > w)
+			return 0.0;
+		return mask[w + d];
 	}
-
 
 		vector <Layer> m_layers;
 	private:

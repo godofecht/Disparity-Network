@@ -49,7 +49,6 @@ double Network::getErrorDerivative(double dvdx,double dudx)
 void Network::CalcF()
 {
 	F = log(V/U);
-	cout<<U<<endl;
 }
 
 void Network::backPropagate(double m_error)
@@ -70,16 +69,41 @@ void Network::backPropagate(double m_error)
 		}
 	}
 	// For all layers from outputs to first hidden layer,
-	//5. Calculate weight changes for all weights
+	//5. Add this example's weight changes to the running totals
 	for (unsigned layerNum = m_layers.size() - 1; layerNum > 0; layerNum--) 
 	{
 		Layer &layer = m_layers[layerNum];
 		Layer &prevLayer = m_layers[layerNum - 1];
 		for (unsigned n = 0; n < layer.size(); n++) 
 		{
-			layer[n].updateInputWeights(prevLayer);
+			layer[n].accumulateInputWeightChanges(prevLayer);
 		}
 	}
+}
+
+// Move every weight by eta times its summed change (gradient ascent on F),
+// then clear the totals for the next round.
+void Network::applyWeightChanges(double eta)
+{
+	for (unsigned layerNum = m_layers.size() - 1; layerNum > 0; layerNum--)
+	{
+		Layer &layer = m_layers[layerNum];
+		Layer &prevLayer = m_layers[layerNum - 1];
+		for (unsigned n = 0; n < layer.size(); n++)
+		{
+			layer[n].applyInputWeightChanges(prevLayer, eta);
+		}
+	}
+}
+
+vector<double> Network::GetWeightChanges() const
+{
+	vector<double> changes;
+	for (int i = 0; i<m_layers.size(); i++)
+		for (int j = 0; j<m_layers[i].size(); j++)
+			for (int k = 0; k<m_layers[i][j].m_outputWeights.size(); k++)
+				changes.push_back(m_layers[i][j].m_outputWeights[k].deltaweight);
+	return changes;
 }
 
 vector<double>  Network::GetWeights() const
@@ -111,10 +135,9 @@ double Network::getDVDX(int a) //done, maybe optimize later
 	{
 		double diff = y_bar[k] - Output_Array[k];
 		
-		if(a == k)
-			sumDiff += diff * maskV[(getSub(a,k))] - 1.0;
-		else
-			sumDiff += diff * maskV[(getSub(a,k))];
+		// d(average_k)/d(y_a) is the kernel weight, and d(y_k)/d(y_a) is 1 when a == k
+		double dDiff = maskWeight(maskV, a, k) - (a == k ? 1.0 : 0.0);
+		sumDiff += diff * dDiff;
 	}
 	return sumDiff;
 }
@@ -126,10 +149,9 @@ double Network::getDUDX(int a) // done, maybe optimize later
 	{
 		double diff = y_tilde[k] - Output_Array[k];
 
-		if(a == k)
-			sumDiff += diff * maskU[(getSub(a,k))] - 1.0;
-		else
-			sumDiff += diff * maskU[(getSub(a,k))];
+		// d(average_k)/d(y_a) is the kernel weight, and d(y_k)/d(y_a) is 1 when a == k
+		double dDiff = maskWeight(maskU, a, k) - (a == k ? 1.0 : 0.0);
+		sumDiff += diff * dDiff;
 	//	cout<<maskDashU[(getSub(a,k))]<<endl;
 
 	}

@@ -14,9 +14,13 @@ int main()
 
     for(int i=0;i<NUM_EPOCHS;i++)
     {
-        dNet.Train(i);
+        double F = dNet.Train(i);
+        cout << i << " " << F << endl;
     }
 
+
+    double F = dNet.CalcObjective();
+    cout << NUM_EPOCHS << " " << F << endl;
 
     std::vector<std::pair<std::string,
     std::vector<double>>> vals = {{"Values", dNet.getNetwork()->Output_Array}};

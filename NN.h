@@ -34,7 +34,8 @@ public:
 	void setOutputVal(double n);
 	void calcHiddenGradients(const Layer &nextLayer);
 	void calcOutputGradients(double targetVal);
-	void updateInputWeights(Layer &prevLayer);
+	void accumulateInputWeightChanges(Layer &prevLayer);
+	void applyInputWeightChanges(Layer &prevLayer, double eta);
     double eta;
     double alpha;
 	vector <connection> m_outputWeights;

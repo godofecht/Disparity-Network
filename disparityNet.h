@@ -106,43 +106,50 @@ public:
         return dataList;
     }
 
-    void Train(int current_epoch) //in each epoch there are 1000 time steps
-    {
-        //1. Calculate Output of all 1000 Virtual Units
+    double learningRate = 0.001;
 
-        //      cout<<"STARTING NEW EPOCH"<<endl;
+    // Runs the network on all A windows, then works out U, V and F.
+    double CalcObjective()
+    {
         for (int a = 0; a < getNetwork()->A; a++)
         {
-            inputVector.clear();
             inputVector = getInputVector(image1, image2, a);
-            feedforward(inputVector); //feeds inputs through , propagates and sets neuronal output values for calculation of V and U
+            feedforward(inputVector);
             getNetwork()->Output_Array[a] = GetResult()[0];
         }
         getNetwork()->CalcAverages();
-
-        //2. Calculate U and V
         getNetwork()->CalcU();
         getNetwork()->CalcV();
         getNetwork()->CalcF();
+        return getNetwork()->F;
+    }
 
-        double error = 0.0;
-
-        double sum_del = 0.0;
+    // Adds dF/dw for every weight to the weights' running totals.
+    // Each window is fed forward again before backpropagation, so the
+    // gradient for window a uses the neuron outputs for window a.
+    void AccumulateGradient()
+    {
         for (int a = 0; a < getNetwork()->A; a++)
         {
             getNetwork()->dudxs[a] = getNetwork()->getDUDX(a);
             getNetwork()->dvdxs[a] = getNetwork()->getDVDX(a);
-
-            //3. Calculate errors for all output units
             getNetwork()->errors[a] = getNetwork()->getErrorDerivative(getNetwork()->dvdxs[a], getNetwork()->dudxs[a]);
-            error += getNetwork()->errors[a];
- //           del_weights_jk[a] = getNetwork()->errors[a] * getNetwork()->Output_Array[a];
- //           sum_del += del_weights_jk[a];
- //cout<<getNetwork()->errors[a]<<endl;
-
-        //    cout<<getNetwork()->dudxs[a]<<endl;
         }
-        getNetwork()->backPropagate(error);
+        for (int a = 0; a < getNetwork()->A; a++)
+        {
+            inputVector = getInputVector(image1, image2, a);
+            feedforward(inputVector);
+            getNetwork()->backPropagate(getNetwork()->errors[a]);
+        }
+    }
+
+    // One training round over all A windows. Returns F before the update.
+    double Train(int current_epoch)
+    {
+        double F = CalcObjective();
+        AccumulateGradient();
+        getNetwork()->applyWeightChanges(learningRate);
+        return F;
     }
 
     void write_csv(std::string filename, std::vector<std::pair<std::string, std::vector<double>>> dataset)
