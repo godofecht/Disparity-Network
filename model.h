@@ -3,7 +3,6 @@
 
 #include "NN.h"
 #include "Network.h"
-#include "Network.cpp"
 #include <iostream>
 
 class Model

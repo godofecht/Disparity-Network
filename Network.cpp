@@ -1,5 +1,6 @@
 #include "Network.h"
-#include "NN.cpp"
+#include <cstdlib>
+#include <ctime>
 #include <vector>
 
 Network::Network(const vector <unsigned> &topology)
